@@ -10,7 +10,6 @@ import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
-import net.fabricmc.fabric.api.client.screen.v1.ScreenMouseEvents;
 import net.fabricmc.fabric.api.client.screen.v1.Screens;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -133,12 +132,26 @@ public class VibePlayerClient implements ClientModInitializer {
                 b.visible = false;
                 Screens.getWidgets(screen).add(b);
             }
+            // clicks on the card are real widgets too: the screen hands them the click reliably
+            HitArea barHit = new HitArea(e -> {
+                PlayerHud.Layout l = PlayerHud.layout();
+                MediaState st = MediaBridge.get().state();
+                if (l != null && l.bar() != null && st.canSeek() && st.dur() > 0) {
+                    double f = (e.x() - l.bar().x1()) / Math.max(1.0, l.bar().x2() - l.bar().x1());
+                    MediaBridge.get().seek(st.dur() * Math.max(0, Math.min(1, f)));
+                }
+            });
+            HitArea coverHit = new HitArea(e -> Minecraft.getInstance().gui.setScreen(new PlayerScreen(null)));
+            Screens.getWidgets(screen).add(barHit);
+            Screens.getWidgets(screen).add(coverHit);
             ScreenEvents.beforeExtract(screen).register((s, g, mouseX, mouseY, delta) -> {
                 PlayerHud.Layout l = PlayerHud.layout();
                 MediaState st = MediaBridge.get().state();
                 for (IconButton b : buttons) {
                     b.visible = l != null;
                 }
+                barHit.place(l == null ? null : l.bar());
+                coverHit.place(l == null ? null : l.cover());
                 if (l == null) {
                     return;
                 }
@@ -158,8 +171,6 @@ public class VibePlayerClient implements ClientModInitializer {
             });
             ScreenEvents.afterExtract(screen).register((s, g, mouseX, mouseY, delta) ->
                     PlayerHud.renderOverChat(g, mouseX, mouseY));
-            ScreenMouseEvents.allowMouseClick(screen).register((s, event) ->
-                    !(event.button() == 0 && PlayerHud.click(event.x(), event.y())));
             ScreenEvents.remove(screen).register(s -> PlayerHud.stopDrag());
         });
     }
