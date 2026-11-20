@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "vibeplayer",
+  "version": "${version}",
+  "name": "Vibe Player",
+  "description": "See and control the music already playing on your PC (Spotify, YouTube in the browser, Yandex Music, any player) right in Minecraft: cover, track, progress, play/pause and skip.",
+  "authors": [
+    "Dalkco"
+  ],
+  "contact": {
+    "homepage": "https://modrinth.com/mod/vibe-player",
+    "sources": "https://github.com/Dalkco11/VibePlayer",
+    "issues": "https://github.com/Dalkco11/VibePlayer/issues"
+  },
+  "license": "MIT",
+  "icon": "assets/vibeplayer/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.dalkco.vibeplayer.VibePlayerClient"
+    ],
+    "modmenu": [
+      "com.dalkco.vibeplayer.ModMenuIntegration"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": ">=26.3",
+    "fabric-api": "*"
+  },
+  "suggests": {
+    "modmenu": "*"
+  }
+}
